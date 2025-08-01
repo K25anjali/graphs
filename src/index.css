@@ -1,12 +1,16 @@
 @import "tailwindcss";
 
+html,
+body,
+#root {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	background-color: #f3f4f6; /* This is Tailwind's bg-gray-100 */
+}
+
 *,
 *::before,
 *::after {
 	box-sizing: border-box;
-}
-
-:root {
-	margin: 0;
-	padding: 0;
 }
