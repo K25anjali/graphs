@@ -12,22 +12,200 @@ import {
 } from 'recharts';
 import { CHART_CONFIG } from '../data/data';
 
-// Transform the data into the format expected by Recharts
-const transformData = () => {
-    return CHART_CONFIG.LABELS.map((year, index) => {
-        const dataPoint = { year };
+const chartData = [
+    {
+        "year": 1990,
+        "electricity": -27,
+        "fgases": null,
+        "ch4": null,
+        "co2ffi": null,
+        "ndcToNetZero": null,
+        "highAmbition": null,
+        "co2": null
+    },
+    {
+        "year": 2000,
+        "electricity": -10,
+        "fgases": null,
+        "ch4": null,
+        "co2ffi": null,
+        "ndcToNetZero": null,
+        "highAmbition": null,
+        "co2": null
+    },
+    {
+        "year": 2005,
+        "electricity": 0,
+        "fgases": null,
+        "ch4": null,
+        "co2ffi": null,
+        "ndcToNetZero": null,
+        "highAmbition": null,
+        "co2": null
+    },
+    {
+        "year": 2010,
+        "electricity": -10,
+        "fgases": null,
+        "ch4": null,
+        "co2ffi": null,
+        "ndcToNetZero": null,
+        "highAmbition": null,
+        "co2": null
+    },
+    {
+        "year": 2015,
+        "electricity": 26,
+        "fgases": null,
+        "ch4": null,
+        "co2ffi": null,
+        "ndcToNetZero": null,
+        "highAmbition": null,
+        "co2": null
+    },
+    {
+        "year": 2018,
+        "electricity": 15,
+        "fgases": null,
+        "ch4": 16,
+        "co2ffi": null,
+        "ndcToNetZero": 16,
+        "highAmbition": 16,
+        "co2": 16
+    },
+    {
+        "year": 2019,
+        "electricity": 15,
+        "fgases": null,
+        "ch4": 18,
+        "co2ffi": null,
+        "ndcToNetZero": null,
+        "highAmbition": null,
+        "co2": 19
+    },
+    {
+        "year": 2020,
+        "electricity": 14,
+        "fgases": null,
+        "ch4": 19,
+        "co2ffi": null,
+        "ndcToNetZero": null,
+        "highAmbition": null,
+        "co2": 20
+    },
+    {
+        "year": 2021,
+        "electricity": 20,
+        "fgases": null,
+        "ch4": 16,
+        "co2ffi": null,
+        "ndcToNetZero": 16,
+        "highAmbition": null,
+        "co2": 15
+    },
+    {
+        "year": 2022,
+        "electricity": 23,
+        "fgases": null,
+        "ch4": 10,
+        "co2ffi": null,
+        "ndcToNetZero": 15,
+        "highAmbition": null,
+        "co2": 12
+    },
+    {
+        "year": 2023,
+        "electricity": 20,
+        "fgases": null,
+        "ch4": null,
+        "co2ffi": 20,
+        "ndcToNetZero": 5,
+        "highAmbition": null,
+        "co2": 11
+    },
+    {
+        "year": 2030,
+        "electricity": null,
+        "fgases": null,
+        "ch4": -10,
+        "co2ffi": 20,
+        "ndcToNetZero": -10,
+        "highAmbition": -30,
+        "co2": -10
+    },
+    {
+        "year": 2031,
+        "electricity": null,
+        "fgases": null,
+        "ch4": null,
+        "co2ffi": 21,
+        "ndcToNetZero": -8,
+        "highAmbition": -50,
+        "co2": -10
+    },
+    {
+        "year": 2034,
+        "electricity": null,
+        "fgases": null,
+        "ch4": -25,
+        "co2ffi": 22,
+        "ndcToNetZero": -28,
+        "highAmbition": -50,
+        "co2": -20
+    },
+    {
+        "year": 2035,
+        "electricity": null,
+        "fgases": 66,
+        "ch4": -25,
+        "co2ffi": null,
+        "ndcToNetZero": -28,
+        "highAmbition": -50,
+        "co2": -20
+    },
 
-        // Add each dataset to the data point
-        Object.keys(CHART_CONFIG.DATASETS).forEach(key => {
-            dataPoint[key] = CHART_CONFIG.DATASETS[key][index];
-        });
-
-        return dataPoint;
-    });
-};
-
+    {
+        "year": 2040,
+        "electricity": null,
+        "fgases": null,
+        "ch4": -36,
+        "co2ffi": null,
+        "ndcToNetZero": -25,
+        "highAmbition": -50,
+        "co2": -40
+    },
+    {
+        "year": 2050,
+        "electricity": null,
+        "fgases": null,
+        "ch4": -40,
+        "co2ffi": null,
+        "ndcToNetZero": -48,
+        "highAmbition": -41,
+        "co2": -42
+    },
+    {
+        "year": 2060,
+        "electricity": null,
+        "fgases": null,
+        "ch4": -40,
+        "co2ffi": null,
+        "ndcToNetZero": -60,
+        "highAmbition": -60,
+        "co2": -30
+    },
+    {
+        "year": 2070,
+        "electricity": null,
+        "fgases": null,
+        "ch4": -55,
+        "co2ffi": null,
+        "ndcToNetZero": -70,
+        "highAmbition": -100,
+        "co2": -100
+    },
+];
 const EmissionsRecharts = () => {
-    const chartData = transformData();
 
     return (
         <div className="bg-gray-100 h-auto max-w-7xl mx-auto my-10 p-0">
@@ -41,14 +219,22 @@ const EmissionsRecharts = () => {
                 <div className="w-full h-96">
                     <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart data={chartData}>
-                            <CartesianGrid stroke="#eee" />
-                            <XAxis dataKey="year" />
-
-                            {/* Y-axis configuration */}
+                            <CartesianGrid stroke="#eee" strokeDasharray={4} />
+                            <XAxis
+                                type="number"  // Ensures proper numerical scaling
+                                scale="time"   // Helps with year-based spacing
+                                dataKey="year"
+                                domain={[1990, 2070]}  // Adjust as needed
+                                ticks={[1999, 2000, 2010, 2020, 2030, 2040, 2050, 2060, 2070]}
+                                axisLine={false}
+                            />
                             <YAxis
                                 domain={[-100, 60]}
+                                ticks={[-100, -80, -60, -40, -20, 0, 20, 40, 60]}
                                 tickFormatter={(val) => `${val}%`}
                                 stroke="#888"
+                                tickLine={false}
+                                axisLine={false}
                             />
 
                             <Tooltip formatter={(value) => `${value}%`} />
@@ -56,34 +242,56 @@ const EmissionsRecharts = () => {
                             {/* Line Charts */}
                             <Line
                                 dataKey="electricity"
-                                stroke="#222224"
+                                stroke="#6a6a6a"
                                 strokeDasharray="4 4"
                                 strokeWidth={2}
+                                dot={false}
+                                connectNulls={true}
                             />
-                            <Line dataKey="ghg" stroke="#bdbdbd" strokeWidth={2} />
-                            <Line dataKey="fgases" stroke="#8bc34a" strokeWidth={2} />
-                            <Line dataKey="ch4" stroke="#4caf50" strokeWidth={2} />
-                            <Line dataKey="n2o" stroke="#2196f3" strokeWidth={2} />
-                            <Line dataKey="ndcToNetZero" stroke="#9c27b0" strokeWidth={2} />
-                            <Line dataKey="netZero" stroke="#f44336" dot={{ fill: "#f44336", r: 6 }} strokeWidth={0} />
+                            <Line
+                                dataKey="highAmbition"
+                                stroke="#8bc34a"
+                                strokeWidth={2}
+                                dot={false}
+                                connectNulls={true}
+                            />
+                            <Line
+                                dataKey="ch4"
+                                stroke="#c9d9da"
+                                strokeWidth={2}
+                                dot={false}
+                                connectNulls={true}
+                            />
+                            <Line
+                                dataKey="ndcToNetZero"
+                                stroke="#5f969d"
+                                strokeWidth={2}
+                                dot={false}
+                                connectNulls={true}
+                            />
 
                             {/* Bar Chart */}
                             <Bar
-                                dataKey="delayed"
-                                fill="#ffeb3b"
-                                barSize={16}
+                                dataKey="fgases"
+                                fill="#f7f19d"
+                                barSize={20}
+                                connectNulls={true}
                             />
 
                             {/* Area Charts */}
                             <Area
                                 dataKey="co2ffi"
-                                fill="#ff9800"
-                                fillOpacity={0.4}
+                                fill="#fbd9d7"
+                                stroke='#fff'
+                                // fillOpacity={0.4}
+                                connectNulls={true}
                             />
                             <Area
-                                dataKey="highAmbition"
-                                fill="#00bcd4"
+                                dataKey="co2"
+                                // fill="#c9d9da"
+                                // stroke='#fff'
                                 fillOpacity={0.4}
+                                connectNulls={true}
                             />
                         </ComposedChart>
                     </ResponsiveContainer>
@@ -102,7 +310,7 @@ const EmissionsRecharts = () => {
                     ))}
                 </div>
             </div>
-        </div >
+        </div>
     );
 };
 
