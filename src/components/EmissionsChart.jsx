@@ -1,317 +1,214 @@
-import React from 'react';
+// src/components/EmissionsChart.jsx
+import React, { useMemo } from "react";
 import {
+    ComposedChart,
     Line,
+    Area,
+    Bar,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
     ResponsiveContainer,
-    Area,
-    Bar,
-    ComposedChart
-} from 'recharts';
-import { CHART_CONFIG } from '../data/data';
+    ReferenceDot,
+    Legend
+} from "recharts";
 
-const chartData = [
-    {
-        "year": 1990,
-        "electricity": -27,
-        "fgases": null,
-        "ch4": null,
-        "co2ffi": null,
-        "ndcToNetZero": null,
-        "highAmbition": null,
-        "co2": null
-    },
-    {
-        "year": 2000,
-        "electricity": -10,
-        "fgases": null,
-        "ch4": null,
-        "co2ffi": null,
-        "ndcToNetZero": null,
-        "highAmbition": null,
-        "co2": null
-    },
-    {
-        "year": 2005,
-        "electricity": 0,
-        "fgases": null,
-        "ch4": null,
-        "co2ffi": null,
-        "ndcToNetZero": null,
-        "highAmbition": null,
-        "co2": null
-    },
-    {
-        "year": 2010,
-        "electricity": -10,
-        "fgases": null,
-        "ch4": null,
-        "co2ffi": null,
-        "ndcToNetZero": null,
-        "highAmbition": null,
-        "co2": null
-    },
-    {
-        "year": 2015,
-        "electricity": 26,
-        "fgases": null,
-        "ch4": null,
-        "co2ffi": null,
-        "ndcToNetZero": null,
-        "highAmbition": null,
-        "co2": null
-    },
-    {
-        "year": 2018,
-        "electricity": 15,
-        "fgases": null,
-        "ch4": 16,
-        "co2ffi": null,
-        "ndcToNetZero": 16,
-        "highAmbition": 16,
-        "co2": 16
-    },
-    {
-        "year": 2019,
-        "electricity": 15,
-        "fgases": null,
-        "ch4": 18,
-        "co2ffi": null,
-        "ndcToNetZero": null,
-        "highAmbition": null,
-        "co2": 19
-    },
-    {
-        "year": 2020,
-        "electricity": 14,
-        "fgases": null,
-        "ch4": 19,
-        "co2ffi": null,
-        "ndcToNetZero": null,
-        "highAmbition": null,
-        "co2": 20
-    },
-    {
-        "year": 2021,
-        "electricity": 20,
-        "fgases": null,
-        "ch4": 16,
-        "co2ffi": null,
-        "ndcToNetZero": 16,
-        "highAmbition": null,
-        "co2": 15
-    },
-    {
-        "year": 2022,
-        "electricity": 23,
-        "fgases": null,
-        "ch4": 10,
-        "co2ffi": null,
-        "ndcToNetZero": 15,
-        "highAmbition": null,
-        "co2": 12
-    },
-    {
-        "year": 2023,
-        "electricity": 20,
-        "fgases": null,
-        "ch4": null,
-        "co2ffi": 20,
-        "ndcToNetZero": 5,
-        "highAmbition": null,
-        "co2": 11
-    },
-    {
-        "year": 2030,
-        "electricity": null,
-        "fgases": null,
-        "ch4": -10,
-        "co2ffi": 20,
-        "ndcToNetZero": -10,
-        "highAmbition": -30,
-        "co2": -10
-    },
-    {
-        "year": 2031,
-        "electricity": null,
-        "fgases": null,
-        "ch4": null,
-        "co2ffi": 21,
-        "ndcToNetZero": -8,
-        "highAmbition": -50,
-        "co2": -10
-    },
-    {
-        "year": 2034,
-        "electricity": null,
-        "fgases": null,
-        "ch4": -25,
-        "co2ffi": 22,
-        "ndcToNetZero": -28,
-        "highAmbition": -50,
-        "co2": -20
-    },
-    {
-        "year": 2035,
-        "electricity": null,
-        "fgases": 66,
-        "ch4": -25,
-        "co2ffi": null,
-        "ndcToNetZero": -28,
-        "highAmbition": -50,
-        "co2": -20
-    },
+/**
+ * Data is crafted to visually match the screenshot:
+ *  - electricity: dashed historical electricity CO2 curve (rises to ~20 then falls)
+ *  - ghg: solid GHG (incl LULUCF) similar but slightly offset
+ *  - ndcToNetZero: light-blue NDC->NetZero trend (starts ~2030 and declines)
+ *  - highAmbition: stronger emissions reduction (more negative)
+ *  - ndcUnconditional: small pink wedge around 2030 (triangle-like area)
+ *  - fgases: single tall yellow bar near 2035
+ *
+ * Values are percentages (like the screenshot y-axis).
+ */
+const rawData = [
+    { year: 1990, electricity: -35, },
+    { year: 1995, electricity: -28, },
+    { year: 2000, electricity: -10, },
+    { year: 2005, electricity: 0, },
+    { year: 2010, electricity: 18, },
+    { year: 2012, electricity: 24, },
+    { year: 2015, electricity: 18, },
+    { year: 2018, electricity: 11, },
+    { year: 2019, electricity: 5, ghg: 6, ndcToNetZero: 5, highAmbition: 5, },
+    { year: 2020, electricity: 7, ghg: 8, ndcToNetZero: 10, highAmbition: 10, },
+    { year: 2021, electricity: 10, ndcToNetZero: 7, highAmbition: 8, },
+    { year: 2022, electricity: 7, ndcToNetZero: -6, highAmbition: 5, },
+    { year: 2023, electricity: 22, ndcUnconditional: 22, ndcToNetZero: -10, highAmbition: -2, },
+    { year: 2025, ghg: 0, ndcUnconditional: 22, ndcToNetZero: -20, highAmbition: -10, },
 
-    {
-        "year": 2040,
-        "electricity": null,
-        "fgases": null,
-        "ch4": -36,
-        "co2ffi": null,
-        "ndcToNetZero": -25,
-        "highAmbition": -50,
-        "co2": -40
-    },
-    {
-        "year": 2050,
-        "electricity": null,
-        "fgases": null,
-        "ch4": -40,
-        "co2ffi": null,
-        "ndcToNetZero": -48,
-        "highAmbition": -41,
-        "co2": -42
-    },
-    {
-        "year": 2060,
-        "electricity": null,
-        "fgases": null,
-        "ch4": -40,
-        "co2ffi": null,
-        "ndcToNetZero": -60,
-        "highAmbition": -60,
-        "co2": -30
-    },
-    {
-        "year": 2070,
-        "electricity": null,
-        "fgases": null,
-        "ch4": -55,
-        "co2ffi": null,
-        "ndcToNetZero": -70,
-        "highAmbition": -100,
-        "co2": -100
-    },
+    // small projection wedge leading into 2030
+    { year: 2028, ghg: -20, ndcUnconditional: 22, ndcToNetZero: -30 },
+
+    // key 2030 point: NDC (unconditional) label appears here (we show a pink wedge)
+    { year: 2030, ghg: -16, ndcToNetZero: -32, highAmbition: -5, ndcUnconditional: 22 },
+
+    // small fade of the pink wedge
+    { year: 2032, ghg: -24, ndcToNetZero: -36, highAmbition: -12, ndcUnconditional: 22 },
+    { year: 2033, ghg: -22, ndcToNetZero: -28, highAmbition: -6, ndcUnconditional: 22 },
+    { year: 2034, ghg: -18, ndcToNetZero: -25, highAmbition: -12, ndcUnconditional: 22 },
+
+    // tall F-Gases single bar drawn at 2035
+    { year: 2035, ghg: -21, ndcToNetZero: -21, highAmbition: -26, fgases: 75 },
+
+    { year: 2040, ghg: -40, ndcToNetZero: -40, highAmbition: -44 },
+    { year: 2045, ghg: -53, ndcToNetZero: -50, highAmbition: -60 },
+    { year: 2050, ghg: -66, ndcToNetZero: -62, highAmbition: -80 },
+    { year: 2055, ghg: -83, ndcToNetZero: -70, highAmbition: -68 },
+    { year: 2060, ghg: -90, ndcToNetZero: -75, highAmbition: -70 }
 ];
-const EmissionsRecharts = () => {
+
+export default function EmissionsChart() {
+    // we'll draw light areas for both ndcToNetZero and highAmbition (they overlap visually).
+    const data = useMemo(() => {
+        return rawData.map((d) => {
+            // ensure every key exists (Recharts prefers numbers or null)
+            const ndc = d.ndcToNetZero ?? null;
+            const high = d.highAmbition ?? null;
+            const gap = ndc != null && high != null ? Math.abs(ndc - high) : 0;
+            return {
+                ...d,
+                ndcToNetZero: ndc,
+                highAmbition: high,
+                gap,
+                ndcUnconditional: d.ndcUnconditional ?? null,
+                fgases: d.fgases ?? null
+            };
+        });
+    }, []);
+
+    const tooltipFormatter = (value, name) => {
+        if (value == null) return ["—", name];
+        return [`${value}%`, name];
+    };
 
     return (
-        <div className="bg-gray-100 h-auto max-w-7xl mx-auto my-10 p-0">
-            <div className="bg-white rounded-xl mx-auto my-8 p-8 max-w-6xl shadow-sm">
-                {/* Chart Title */}
-                <div className="text-xl font-semibold mb-2 text-gray-900">
-                    Emissions GHG <span className={CHART_CONFIG.STYLES.subtitle}>(Mt CO₂eq/yr)</span>
-                </div>
-
-                {/* Chart Container */}
-                <div className="w-full h-96">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={chartData}>
-                            <CartesianGrid stroke="#eee" strokeDasharray={4} />
-                            <XAxis
-                                type="number"  // Ensures proper numerical scaling
-                                scale="time"   // Helps with year-based spacing
-                                dataKey="year"
-                                domain={[1990, 2070]}  // Adjust as needed
-                                ticks={[1999, 2000, 2010, 2020, 2030, 2040, 2050, 2060, 2070]}
-                                axisLine={false}
-                            />
-                            <YAxis
-                                domain={[-100, 60]}
-                                ticks={[-100, -80, -60, -40, -20, 0, 20, 40, 60]}
-                                tickFormatter={(val) => `${val}%`}
-                                stroke="#888"
-                                tickLine={false}
-                                axisLine={false}
-                            />
-
-                            <Tooltip formatter={(value) => `${value}%`} />
-
-                            {/* Line Charts */}
-                            <Line
-                                dataKey="electricity"
-                                stroke="#6a6a6a"
-                                strokeDasharray="4 4"
-                                strokeWidth={2}
-                                dot={false}
-                                connectNulls={true}
-                            />
-                            <Line
-                                dataKey="highAmbition"
-                                stroke="#8bc34a"
-                                strokeWidth={2}
-                                dot={false}
-                                connectNulls={true}
-                            />
-                            <Line
-                                dataKey="ch4"
-                                stroke="#c9d9da"
-                                strokeWidth={2}
-                                dot={false}
-                                connectNulls={true}
-                            />
-                            <Line
-                                dataKey="ndcToNetZero"
-                                stroke="#5f969d"
-                                strokeWidth={2}
-                                dot={false}
-                                connectNulls={true}
-                            />
-
-                            {/* Bar Chart */}
-                            <Bar
-                                dataKey="fgases"
-                                fill="#f7f19d"
-                                barSize={20}
-                                connectNulls={true}
-                            />
-
-                            {/* Area Charts */}
-                            <Area
-                                dataKey="co2ffi"
-                                fill="#fbd9d7"
-                                stroke='#fff'
-                                // fillOpacity={0.4}
-                                connectNulls={true}
-                            />
-                            <Area
-                                dataKey="co2"
-                                // fill="#c9d9da"
-                                // stroke='#fff'
-                                fillOpacity={0.4}
-                                connectNulls={true}
-                            />
-                        </ComposedChart>
-                    </ResponsiveContainer>
-                </div>
-
-                {/* Legend for showcase of label*/}
-                <div className={CHART_CONFIG.STYLES.legendContainer}>
-                    {CHART_CONFIG.LEGEND_ITEMS.map((item) => (
-                        <span key={item.label} className={CHART_CONFIG.STYLES.legendItem}>
-                            <span
-                                className={CHART_CONFIG.STYLES.legendIndicator}
-                                style={{ backgroundColor: item.color }}
-                            />
-                            {item.label}
-                        </span>
-                    ))}
+        <div className="w-full max-w-6xl mx-auto h-[520px] bg-white p-6 rounded-xl">
+            <div className="flex items-center justify-between mb-4">
+                <div>
+                    <h3 className="text-2xl font-semibold">Emissions GHG <span className="text-gray-400 text-base">(Mt CO₂eq/yr)</span></h3>
                 </div>
             </div>
+
+            <ResponsiveContainer width="100%" height="85%">
+                <ComposedChart data={data} margin={{ top: 10, right: 40, left: 20, bottom: 20 }}>
+                    <CartesianGrid stroke="#e9e9e9" strokeDasharray="6 6" />
+                    <XAxis
+                        dataKey="year"
+                        tick={{ fontSize: 12, fill: "#6b6b6b" }}
+                        domain={["dataMin", "dataMax"]}
+                        type="number"
+                        tickCount={10}
+                    />
+                    <YAxis
+                        tick={{ fontSize: 12, fill: "#6b6b6b" }}
+                        domain={[-100, 80]}
+                        ticks={[-100, -80, -60, -40, -20, 0, 20, 40, 60]}
+                        tickFormatter={(v) => `${v}%`}
+                    />
+
+                    <Tooltip formatter={tooltipFormatter} />
+
+                    {/* PINK wedge (NDC unconditional projection) */}
+                    <Area
+                        type="monotone"
+                        dataKey="ndcUnconditional"
+                        stroke="none"
+                        fill="#f7c8ce"
+                        fillOpacity={0.7}
+                        isAnimationActive={false}
+                    />
+
+                    {/* Light envelope/uncertainty shading (big pale blue area) 
+              this is an approximation to the large pale band in the screenshot */}
+                    <Area
+                        type="monotone"
+                        dataKey="highAmbition"
+                        stroke="none"
+                        fill="#dfeff4"
+                        fillOpacity={0.45}
+                        isAnimationActive={false}
+                        connectNulls
+                    />
+                    <Area
+                        type="monotone"
+                        dataKey="ndcToNetZero"
+                        stroke="none"
+                        fill="#eaf6f8"
+                        fillOpacity={0.35}
+                        isAnimationActive={false}
+                        connectNulls
+                    />
+
+                    {/* Yellow single bar for F-Gases (drawn narrow so it looks like a vertical column) */}
+                    <Bar
+                        dataKey="fgases"
+                        barSize={14}
+                        fill="#f3d13a"
+                        isAnimationActive={false}
+                    />
+
+                    {/* Electricity CO2 - dashed black line */}
+                    <Line
+                        type="monotone"
+                        dataKey="electricity"
+                        stroke="#6b6b6b"
+                        strokeWidth={2}
+                        strokeDasharray="6 6"
+                        dot={false}
+                        activeDot={{ r: 3 }}
+                        name="Electricity CO₂"
+                        isAnimationActive={false}
+                        connectNulls
+                    />
+
+                    {/* GHG incl. LULUCF - solid black */}
+                    <Line
+                        type="monotone"
+                        dataKey="ghg"
+                        stroke="#d8e4e6"
+                        strokeWidth={2.2}
+                        dot={false}
+                        name="GHG (incl. LULUCF)"
+                        isAnimationActive={false}
+                        connectNulls
+                    />
+
+                    {/* NDC to Net-Zero Trend - light teal */}
+                    <Line
+                        type="monotone"
+                        dataKey="ndcToNetZero"
+                        stroke="#d8e4e6"
+                        strokeWidth={2.2}
+                        dot={false}
+                        name="NDC to Net-Zero Trend"
+                        isAnimationActive={false}
+                        connectNulls
+                    />
+                    {/* High Ambition - teal/darker */}
+                    <Line
+                        type="monotone"
+                        dataKey="highAmbition"
+                        stroke="#0e90a8"
+                        strokeWidth={2.8}
+                        dot={false}
+                        name="High Ambition"
+                        isAnimationActive={false}
+                        connectNulls
+                    />
+                    {/* Annotations: reference year 2005 */}
+                    <ReferenceDot x={2005} y={0} r={6} fill="#7d7d7d" stroke="#fff" label={{ position: "bottom", value: "Reference year 2005" }} />
+
+                    {/* NDC point around 2035 */}
+                    <ReferenceDot x={2035} y={-21} r={7} fill="#64c6d1" stroke="#fff" label={{ position: "bottom", value: "NDC -21%" }} />
+                    <Legend verticalAlign="bottom" align="left" wrapperStyle={{ bottom: -6 }} />
+
+                </ComposedChart>
+            </ResponsiveContainer>
         </div>
     );
-};
-
-export default EmissionsRecharts;
+}
