@@ -14,17 +14,6 @@ import {
     Legend
 } from "recharts";
 
-/**
- * Data is crafted to visually match the screenshot:
- *  - electricity: dashed historical electricity CO2 curve (rises to ~20 then falls)
- *  - ghg: solid GHG (incl LULUCF) similar but slightly offset
- *  - ndcToNetZero: light-blue NDC->NetZero trend (starts ~2030 and declines)
- *  - highAmbition: stronger emissions reduction (more negative)
- *  - ndcUnconditional: small pink wedge around 2030 (triangle-like area)
- *  - fgases: single tall yellow bar near 2035
- *
- * Values are percentages (like the screenshot y-axis).
- */
 const rawData = [
     { year: 1990, electricity: -35, },
     { year: 1995, electricity: -28, },
